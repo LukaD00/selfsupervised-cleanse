@@ -6,6 +6,7 @@ from torchvision.transforms import ToTensor
 from torchvision.datasets.vision import VisionDataset
 
 from PIL import Image
+from matplotlib import pyplot as plt
 
 
 class BadNetsTriggerHandler(object):
@@ -72,6 +73,10 @@ class BadNetsDataset(VisionDataset):
     def __len__(self):
         return len(self.original_dataset)
     
+    def show(self, index):
+        img = self[index][0]
+        plt.imshow(  img.permute(1, 2, 0)  )
+        plt.show()
 
 
 
@@ -163,15 +168,8 @@ class WaNetDataset(VisionDataset):
     def __len__(self):
         return len(self.original_dataset)
 
-if __name__=="__main__":
-    import torchvision
-    from matplotlib import pyplot as plt
-    dataset = torchvision.datasets.CIFAR10(root='C:/Datasets', train=False, download=True)
-    wanet = WaNetDataset(dataset, 0, seed=1)
-    
-    poisoned_index = wanet.poi_indices[0]
-    noise_index = wanet.noise_indices[0]
+    def show(self, index):
+        img = self[index][0]
+        plt.imshow(  img.permute(1, 2, 0)  )
+        plt.show()
 
-    img = wanet[poisoned_index][0].cpu()
-    plt.imshow(  img.permute(1, 2, 0)  )
-    #wanet[noise_index]
