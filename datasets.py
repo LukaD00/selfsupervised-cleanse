@@ -25,10 +25,14 @@ class BadNetsTriggerHandler(object):
 class BadNetsDataset(VisionDataset):
 
     def __init__(self, original_dataset: VisionDataset, target_class: int, trigger_path: str, 
-                 transform: torch.nn.Module = None, trigger_size: int = 3, seed: int = None, poisoning_rate: float = 0.1):
+                 transform: torch.nn.Module = None, trigger_size: int = 3, seed: int = None, poisoning_rate: float = 0.1,
+                 return_original_label: bool = True):
+
+        self.to_tensor = ToTensor()
 
         self.original_dataset = original_dataset
         self.transform = transform
+        self.return_original_label = return_original_label
 
         self.target_class = target_class
         self.poisoning_rate = poisoning_rate
@@ -38,10 +42,12 @@ class BadNetsDataset(VisionDataset):
 
         indices = [i for i in range(len(original_dataset.targets)) if original_dataset.targets[i]!=target_class]
         if seed: random.seed(seed)
-        self.poi_indices = random.sample(indices, k=int(len(original_dataset.targets) * self.poisoning_rate))
+        number_poisoned = min(int(len(original_dataset.targets) * self.poisoning_rate), len(indices))
+        self.poi_indices = random.sample(indices, k=number_poisoned)
 
     def __getitem__(self, index):
         img, original_label = self.original_dataset[index]
+
         # NOTE: According to the threat model, the trigger should be put on the image before transform.
         # (The attacker can only poison the dataset)
         if index in self.poi_indices:
@@ -50,10 +56,18 @@ class BadNetsDataset(VisionDataset):
         else:
             poison_label = original_label
 
+        # WaNet attack needs to transform images to Pytorch tensors, so we by default transform into tensors
+        # here as well to make it consistent
+        if not torch.is_tensor(img):
+            img = self.to_tensor(img)
+
         if self.transform is not None:
             img = self.transform(img)
 
-        return img, poison_label, original_label
+        if self.return_original_label:
+            return img, poison_label, original_label
+        else:
+            return img, poison_label
     
     def __len__(self):
         return len(self.original_dataset)
@@ -65,12 +79,13 @@ class WaNetDataset(VisionDataset):
 
     def __init__(self, original_dataset: VisionDataset, target_class: int, 
                  transform: torch.nn.Module = None, seed: int = None, poisoning_rate: float = 0.1, noise_rate: float = 0.2,
-                 k: float = 4, s: float = 0.5, device: str = "cpu"):
-        self.to_tensor = ToTensor()
+                 k: float = 4, s: float = 0.5, device: str = "cpu", return_original_label: bool = True):
 
+        self.to_tensor = ToTensor()
 
         self.original_dataset = original_dataset
         self.transform = transform
+        self.return_original_label = return_original_label
 
         self.target_class = target_class
         
@@ -79,9 +94,10 @@ class WaNetDataset(VisionDataset):
 
         indices = [i for i in range(len(original_dataset.targets)) if original_dataset.targets[i]!=target_class]
         if seed: random.seed(seed)
-        self.poi_indices = random.sample(indices, k=int(len(original_dataset.targets) * poisoning_rate))
+        number_poisoned = min(int(len(original_dataset.targets) * poisoning_rate), len(indices))
+        self.poi_indices = random.sample(indices, k=number_poisoned)
 
-        clean_indices = [i for i in indices if i not in self.poi_indices]
+        clean_indices = [i for i in range(len(original_dataset.targets)) if i not in self.poi_indices]
         self.noise_indices = random.sample(clean_indices, k=int(len(original_dataset.targets) * noise_rate))
 
         # Prepare attack grid
@@ -104,7 +120,9 @@ class WaNetDataset(VisionDataset):
 
     def __getitem__(self, index):
         img, original_label = self.original_dataset[index]
-        img = self.to_tensor(img)
+
+        if not torch.is_tensor(img):
+            img = self.to_tensor(img)
         
         if index in self.poi_indices:
             poison_label = self.target_class
@@ -137,7 +155,10 @@ class WaNetDataset(VisionDataset):
         if self.transform is not None:
             img = self.transform(img)
 
-        return img, poison_label, original_label
+        if self.return_original_label:
+            return img, poison_label, original_label
+        else:
+            return img, poison_label
 
     def __len__(self):
         return len(self.original_dataset)
