@@ -2,14 +2,93 @@ import random
 
 import torch
 import torch.nn.functional as F
+import torchvision
 from torchvision.transforms import ToTensor
+#from torchvision.transforms import functional
 from torchvision.datasets.vision import VisionDataset
 
+import numpy as np
 from PIL import Image
 from matplotlib import pyplot as plt
 
 
-class BadNetsTriggerHandler(object):
+class SIGTriggerHandler():
+
+    def __init__(self, delta, freq, alpha=0.2):
+        super(SIGTriggerHandler, self).__init__()
+
+        self.delta = delta
+        self.freq = freq
+        self.alpha = alpha
+
+        img_shape = (32, 32, 3)
+        self.pattern = np.zeros(img_shape, dtype=np.float32)
+        m = self.pattern.shape[1]
+        for i in range(img_shape[0]):
+            for j in range(img_shape[1]):
+                for k in range(img_shape[2]):
+                    self.pattern[i, j] = delta * np.sin(2 * np.pi * j * self.freq / m)
+
+    def put_trigger(self, img):
+        #img = functional.pil_to_tensor(img)
+        img = np.array(img)
+        img = np.float32(img)
+        img = self.alpha * np.uint32(img) + (1 - self.alpha) * self.pattern
+        img = np.uint8(np.clip(img, 0, 255))
+        img = Image.fromarray(img)
+        return img
+
+
+class SIGDataset(VisionDataset):
+    
+    def __init__(self, original_dataset: VisionDataset, target_class: int, delta: float, freq: float, alpha: float = 0.2,
+                 transform: torch.nn.Module = None, seed: int = None, poisoning_rate: float = 0.2, 
+                 return_original_label: bool = True, attack_test: bool = False):
+        
+        self.to_tensor = ToTensor()
+
+        self.original_dataset = original_dataset
+        self.transform = transform
+        self.return_original_label = return_original_label
+        self.target_class = target_class
+        self.poisoning_rate = poisoning_rate
+        self.attack_test = attack_test
+        self.trigger_handler = SIGTriggerHandler(delta, freq, alpha)
+
+        indices = [i for i in range(len(original_dataset.targets)) if original_dataset.targets[i]==target_class]
+        if seed: random.seed(seed)
+        number_poisoned = min(int(len(indices) * self.poisoning_rate), len(indices))
+        self.poi_indices = random.sample(indices, k=number_poisoned)
+
+    def __getitem__(self, index):
+        img, original_label = self.original_dataset[index]
+
+        # NOTE: According to the threat model, the trigger should be put on the image before transform.
+        # (The attacker can only poison the dataset)
+        if index in self.poi_indices or self.attack_test:
+            poison_label = self.target_class
+            img = self.trigger_handler.put_trigger(img)
+        else:
+            poison_label = original_label
+
+        # WaNet attack needs to transform images to Pytorch tensors, so we by default transform into tensors
+        # here as well to make it consistent
+        if not torch.is_tensor(img):
+            img = self.to_tensor(img)
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        if self.return_original_label:
+            return img, poison_label, original_label
+        else:
+            return img, poison_label
+    
+    def __len__(self):
+        return len(self.original_dataset)
+
+
+class BadNetsTriggerHandler():
 
     def __init__(self, trigger_path, trigger_size, img_width, img_height):
         self.trigger_img = Image.open(trigger_path).convert('RGB')
@@ -34,7 +113,6 @@ class BadNetsDataset(VisionDataset):
         self.original_dataset = original_dataset
         self.transform = transform
         self.return_original_label = return_original_label
-
         self.target_class = target_class
         self.poisoning_rate = poisoning_rate
         
@@ -72,12 +150,6 @@ class BadNetsDataset(VisionDataset):
     
     def __len__(self):
         return len(self.original_dataset)
-    
-    def show(self, index):
-        img = self[index][0]
-        plt.imshow(  img.permute(1, 2, 0)  )
-        plt.show()
-
 
 
 class WaNetDataset(VisionDataset):
@@ -168,8 +240,26 @@ class WaNetDataset(VisionDataset):
     def __len__(self):
         return len(self.original_dataset)
 
-    def show(self, index):
-        img = self[index][0]
-        plt.imshow(  img.permute(1, 2, 0)  )
-        plt.show()
 
+def show(dataset, index):
+    img = dataset[index][0]
+
+    if not torch.is_tensor(img):
+        img = ToTensor()(img)
+
+    img = img.permute(1, 2, 0)
+    
+    print(img)
+    plt.imshow(img)
+    plt.show()
+
+
+
+if __name__=="__main__":
+    dataset = torchvision.datasets.CIFAR10(root='C:/Datasets', train=True, download=True)
+    poison_dataset = SIGDataset(dataset, target_class=0, delta=20, freq=6, alpha=0.6, seed=1)
+
+    poison_index = poison_dataset.poi_indices[3]
+
+    show(dataset, poison_index)
+    show(poison_dataset, poison_index)
