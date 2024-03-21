@@ -42,7 +42,7 @@ class SIGTriggerHandler():
 class SIGDataset(VisionDataset):
     
     def __init__(self, original_dataset: VisionDataset, target_class: int, delta: float, freq: float, alpha: float = 0.2,
-                 transform: torch.nn.Module = None, seed: int = None, poisoning_rate: float = 0.2, 
+                 transform: torch.nn.Module = None, seed: int = None, poisoning_rate: float = 0.1, 
                  return_original_label: bool = True, attack_test: bool = False):
         
         self.to_tensor = ToTensor()
@@ -86,6 +86,9 @@ class SIGDataset(VisionDataset):
     
     def __len__(self):
         return len(self.original_dataset)
+    
+    def is_poison(self, index):
+        return index in self.poi_indices
 
 
 class BadNetsTriggerHandler():
@@ -151,6 +154,8 @@ class BadNetsDataset(VisionDataset):
     def __len__(self):
         return len(self.original_dataset)
 
+    def is_poison(self, index):
+        return index in self.poi_indices
 
 class WaNetDataset(VisionDataset):
 
@@ -239,6 +244,9 @@ class WaNetDataset(VisionDataset):
 
     def __len__(self):
         return len(self.original_dataset)
+
+    def is_poison(self, index):
+        return index in self.poi_indices
 
 
 def show(dataset, index):
