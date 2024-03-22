@@ -4,7 +4,6 @@ import torch
 import torch.nn.functional as F
 import torchvision
 from torchvision.transforms import ToTensor
-#from torchvision.transforms import functional
 from torchvision.datasets.vision import VisionDataset
 
 import numpy as np
