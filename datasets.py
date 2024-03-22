@@ -264,7 +264,7 @@ def show(dataset, index):
 
 if __name__=="__main__":
     dataset = torchvision.datasets.CIFAR10(root='C:/Datasets', train=True, download=True)
-    poison_dataset = SIGDataset(dataset, target_class=0, delta=20, freq=6, alpha=0.6, seed=1)
+    poison_dataset = SIGDataset(dataset, target_class=0, delta=20, freq=6, alpha=0.9, seed=1)
 
     poison_index = poison_dataset.poi_indices[3]
 
