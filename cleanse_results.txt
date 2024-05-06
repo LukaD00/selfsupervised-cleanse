@@ -1,0 +1,93 @@
+---------------------------------------
+sig train
+
+Non-disruptive cleanse: 
+0 	 10509
+500 	 38991
+Percentage of poisoned images (out of all poisoned) kept:  100.00%
+Percentage of clean images (out of all clean) kept:  78.77%
+Percentage of remaining poisoned images (out of all remaining):  1.27%
+
+Disruptive cleanse: 
+250 	 0
+250 	 49500
+Percentage of poisoned images (out of all poisoned) kept:  50.00%
+Percentage of clean images (out of all clean) kept:  100.00%
+Percentage of remaining poisoned images (out of all remaining):  0.50%
+
+Reclassify disruptive cleanse: 
+500 	 47
+0 	 49453
+Percentage of poisoned images (out of all poisoned) kept:  0.00%
+Percentage of clean images (out of all clean) kept:  99.91%
+Percentage of remaining poisoned images (out of all remaining):  0.00%
+
+Final cleanse: 
+500 	 10541
+0 	 38959
+Percentage of poisoned images (out of all poisoned) kept:  0.00%
+Percentage of clean images (out of all clean) kept:  78.71%
+Percentage of remaining poisoned images (out of all remaining):  0.00%
+---------------------------------------
+---------------------------------------
+badnets train
+
+Non-disruptive cleanse: 
+4905 	 9481
+95 	 35519
+Percentage of poisoned images (out of all poisoned) kept:  1.90%
+Percentage of clean images (out of all clean) kept:  78.93%
+Percentage of remaining poisoned images (out of all remaining):  0.27%
+
+Disruptive cleanse: 
+0 	 250
+5000 	 44750
+Percentage of poisoned images (out of all poisoned) kept:  100.00%
+Percentage of clean images (out of all clean) kept:  99.44%
+Percentage of remaining poisoned images (out of all remaining):  10.05%
+
+Reclassify disruptive cleanse: 
+13 	 445
+4987 	 44555
+Percentage of poisoned images (out of all poisoned) kept:  99.74%
+Percentage of clean images (out of all clean) kept:  99.01%
+Percentage of remaining poisoned images (out of all remaining):  10.07%
+
+Final cleanse: 
+4905 	 9905
+95 	 35095
+Percentage of poisoned images (out of all poisoned) kept:  1.90%
+Percentage of clean images (out of all clean) kept:  77.99%
+Percentage of remaining poisoned images (out of all remaining):  0.27%
+---------------------------------------
+---------------------------------------
+wanet train
+
+Non-disruptive cleanse: 
+3989 	 14154
+1011 	 30846
+Percentage of poisoned images (out of all poisoned) kept:  20.22%
+Percentage of clean images (out of all clean) kept:  68.55%
+Percentage of remaining poisoned images (out of all remaining):  3.17%
+
+Disruptive cleanse: 
+45 	 205
+4955 	 44795
+Percentage of poisoned images (out of all poisoned) kept:  99.10%
+Percentage of clean images (out of all clean) kept:  99.54%
+Percentage of remaining poisoned images (out of all remaining):  9.96%
+
+Reclassify disruptive cleanse: 
+67 	 372
+4933 	 44628
+Percentage of poisoned images (out of all poisoned) kept:  98.66%
+Percentage of clean images (out of all clean) kept:  99.17%
+Percentage of remaining poisoned images (out of all remaining):  9.95%
+
+Final cleanse: 
+3991 	 14503
+1009 	 30497
+Percentage of poisoned images (out of all poisoned) kept:  20.18%
+Percentage of clean images (out of all clean) kept:  67.77%
+Percentage of remaining poisoned images (out of all remaining):  3.20%
+---------------------------------------
