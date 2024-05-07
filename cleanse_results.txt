@@ -15,18 +15,25 @@ Percentage of poisoned images (out of all poisoned) kept:  50.00%
 Percentage of clean images (out of all clean) kept:  100.00%
 Percentage of remaining poisoned images (out of all remaining):  0.50%
 
-Reclassify disruptive cleanse: 
-500 	 47
-0 	 49453
+Reclassify (binary) disruptive cleanse: 
+500 	 3
+0 	 49497
 Percentage of poisoned images (out of all poisoned) kept:  0.00%
-Percentage of clean images (out of all clean) kept:  99.91%
+Percentage of clean images (out of all clean) kept:  99.99%
 Percentage of remaining poisoned images (out of all remaining):  0.00%
 
-Final cleanse: 
-500 	 10541
-0 	 38959
+Combined cleanse: 
+500 	 10510
+0 	 38990
 Percentage of poisoned images (out of all poisoned) kept:  0.00%
-Percentage of clean images (out of all clean) kept:  78.71%
+Percentage of clean images (out of all clean) kept:  78.77%
+Percentage of remaining poisoned images (out of all remaining):  0.00%
+
+Reclassify (multiclass) combined cleanse: 
+500 	 12821
+0 	 36679
+Percentage of poisoned images (out of all poisoned) kept:  0.00%
+Percentage of clean images (out of all clean) kept:  74.10%
 Percentage of remaining poisoned images (out of all remaining):  0.00%
 ---------------------------------------
 ---------------------------------------
@@ -46,19 +53,26 @@ Percentage of poisoned images (out of all poisoned) kept:  100.00%
 Percentage of clean images (out of all clean) kept:  99.44%
 Percentage of remaining poisoned images (out of all remaining):  10.05%
 
-Reclassify disruptive cleanse: 
-13 	 445
-4987 	 44555
-Percentage of poisoned images (out of all poisoned) kept:  99.74%
-Percentage of clean images (out of all clean) kept:  99.01%
-Percentage of remaining poisoned images (out of all remaining):  10.07%
+Reclassify (binary) disruptive cleanse: 
+46 	 938
+4954 	 44062
+Percentage of poisoned images (out of all poisoned) kept:  99.08%
+Percentage of clean images (out of all clean) kept:  97.92%
+Percentage of remaining poisoned images (out of all remaining):  10.11%
 
-Final cleanse: 
-4905 	 9905
-95 	 35095
-Percentage of poisoned images (out of all poisoned) kept:  1.90%
-Percentage of clean images (out of all clean) kept:  77.99%
-Percentage of remaining poisoned images (out of all remaining):  0.27%
+Combined cleanse: 
+4908 	 10332
+92 	 34668
+Percentage of poisoned images (out of all poisoned) kept:  1.84%
+Percentage of clean images (out of all clean) kept:  77.04%
+Percentage of remaining poisoned images (out of all remaining):  0.26%
+
+Reclassify (multiclass) combined cleanse: 
+4939 	 8876
+61 	 36124
+Percentage of poisoned images (out of all poisoned) kept:  1.22%
+Percentage of clean images (out of all clean) kept:  80.28%
+Percentage of remaining poisoned images (out of all remaining):  0.17%
 ---------------------------------------
 ---------------------------------------
 wanet train
@@ -84,10 +98,17 @@ Percentage of poisoned images (out of all poisoned) kept:  98.66%
 Percentage of clean images (out of all clean) kept:  99.17%
 Percentage of remaining poisoned images (out of all remaining):  9.95%
 
-Final cleanse: 
+Combined cleanse: 
 3991 	 14503
 1009 	 30497
 Percentage of poisoned images (out of all poisoned) kept:  20.18%
 Percentage of clean images (out of all clean) kept:  67.77%
 Percentage of remaining poisoned images (out of all remaining):  3.20%
+
+Reclassify (multiclass) combined cleanse: 
+3061 	 10188
+1939 	 34812
+Percentage of poisoned images (out of all poisoned) kept:  38.78%
+Percentage of clean images (out of all clean) kept:  77.36%
+Percentage of remaining poisoned images (out of all remaining):  5.28%
 ---------------------------------------
