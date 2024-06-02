@@ -174,7 +174,9 @@ class WaNetDataset(VisionDataset):
         self.device = device
 
         indices = [i for i in range(len(original_dataset.targets)) if original_dataset.targets[i]!=target_class]
-        if seed: random.seed(seed)
+        if seed: 
+            random.seed(seed)
+            torch.manual_seed(seed)
         number_poisoned = min(int(len(original_dataset.targets) * poisoning_rate), len(indices))
         self.poi_indices = random.sample(indices, k=number_poisoned)
 
@@ -257,16 +259,51 @@ def show(dataset, index):
     img = img.permute(1, 2, 0)
     
     print(img)
+    plt.axis('off')
     plt.imshow(img)
     plt.show()
 
+def save(dataset, index, output_name):
+    img = dataset[index][0]
+
+    if not torch.is_tensor(img):
+        img = ToTensor()(img)
+
+    img = img.permute(1, 2, 0)
+    
+    plt.axis('off')
+    plt.imshow(img)
+    plt.savefig(output_name, bbox_inches='tight', pad_inches = 0)
+
+def save_difference(dataset1, dataset2, index, output_name):
+    img1 = dataset1[index][0]
+    if not torch.is_tensor(img1):
+        img1 = ToTensor()(img1)
+    img1 = img1.permute(1, 2, 0)
+
+    img2 = dataset2[index][0]
+    if not torch.is_tensor(img2):
+        img2 = ToTensor()(img2)
+    img2 = img2.permute(1, 2, 0)
+
+    img = img2 - img1
+    
+    plt.axis('off')
+    plt.imshow(img)
+    plt.savefig(output_name, bbox_inches='tight', pad_inches = 0)
 
 
 if __name__=="__main__":
     dataset = torchvision.datasets.CIFAR10(root='C:/Datasets', train=True, download=True)
-    poison_dataset = SIGDataset(dataset, target_class=0, delta=20, freq=6, alpha=0.9, seed=1)
+    #poison_dataset = WaNetDataset(dataset, 0, seed=1)
+    #poison_dataset = BadNetsDataset(dataset, 1, "triggers/trigger_10.png", seed=1)
+    poison_dataset = SIGDataset(dataset, target_class=1, delta=20, freq=6, seed=1)
 
     poison_index = poison_dataset.poi_indices[3]
 
-    show(dataset, poison_index)
-    show(poison_dataset, poison_index)
+    #show(dataset, poison_index)
+    #show(poison_dataset, poison_index)
+
+    save(dataset, poison_index, "images/sig_no_trigger_image.png")
+    save(poison_dataset, poison_index, "images/sig_trigger_image.png")
+    save_difference(dataset, poison_dataset, poison_index, "images/sig_difference_image.png")
