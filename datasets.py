@@ -10,6 +10,8 @@ import numpy as np
 from PIL import Image
 from matplotlib import pyplot as plt
 
+from typing import Tuple
+
 
 class SIGTriggerHandler():
 
@@ -158,9 +160,17 @@ class BadNetsDataset(VisionDataset):
 
 class WaNetDataset(VisionDataset):
 
-    def __init__(self, original_dataset: VisionDataset, target_class: int, 
-                 transform: torch.nn.Module = None, seed: int = None, poisoning_rate: float = 0.1, noise_rate: float = 0.2,
-                 k: float = 4, s: float = 0.5, device: str = "cpu", return_original_label: bool = True):
+    def __init__(self, 
+                 original_dataset: VisionDataset, 
+                 target_class: int, 
+                 transform: torch.nn.Module = None, 
+                 seed: int = None, 
+                 poisoning_rate: float = 0.1, 
+                 noise_rate: float = 0.2,
+                 k: float = 4, 
+                 s: float = 0.5, 
+                 device: str = "cpu", 
+                 return_original_label: bool = True):
 
         self.to_tensor = ToTensor()
 
@@ -291,6 +301,36 @@ def save_difference(dataset1, dataset2, index, output_name):
     plt.axis('off')
     plt.imshow(img)
     plt.savefig(output_name, bbox_inches='tight', pad_inches = 0)
+
+
+def prepare_poison_dataset(
+        dataset_name: str, 
+        train: bool, 
+        dataset_root: str = 'C:/Datasets', 
+        download: bool = False,
+        transform: torch.nn.Module = None,
+        return_original_label: bool = True) -> Tuple[VisionDataset, np.array, int, VisionDataset]:
+    
+    clean_dataset = torchvision.datasets.CIFAR10(root=dataset_root, train=train, download=download)
+
+    if dataset_name == "badnets":
+        target_class = 1
+        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label)
+    elif dataset_name == "wanet":
+        target_class = 0
+        poison_dataset = WaNetDataset(clean_dataset, target_class, seed=1, transform=transform, return_original_label=return_original_label)
+    elif dataset_name == "sig":
+        target_class = 1
+        poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=1, transform=transform, return_original_label=return_original_label)
+    elif dataset_name == "sig2":
+        target_class = 2
+        poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=2, transform=transform, return_original_label=return_original_label)
+    else:
+        raise Exception("Invalid dataset")
+
+    poison_indices = np.array([poison_dataset.is_poison(i) for i in range(len(poison_dataset))])
+
+    return poison_dataset, poison_indices, target_class, clean_dataset
 
 
 if __name__=="__main__":
