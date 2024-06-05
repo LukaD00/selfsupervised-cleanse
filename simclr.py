@@ -81,3 +81,6 @@ class SimClrBackbone(nn.Module):
         out = self.pretrained(x)
         xp = self.projector(torch.squeeze(out))
         return xp
+    
+    def forward_repr(self,x):
+        return self.pretrained(x)
