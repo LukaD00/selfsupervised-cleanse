@@ -3,6 +3,7 @@ import random
 import torch
 import torch.nn.functional as F
 import torchvision
+from torchvision import transforms
 from torchvision.transforms import ToTensor
 from torchvision.datasets.vision import VisionDataset
 
@@ -309,14 +310,16 @@ def prepare_poison_dataset(
         dataset_root: str = 'C:/Datasets', 
         download: bool = False,
         transform: torch.nn.Module = None,
-        return_original_label: bool = True) -> Tuple[VisionDataset, np.array, int, VisionDataset]:
+        return_original_label: bool = True,
+        clean_dataset: VisionDataset = None) -> Tuple[VisionDataset, np.array, int, VisionDataset]:
     
-    clean_dataset = torchvision.datasets.CIFAR10(root=dataset_root, train=train, download=download)
+    if clean_dataset is None:
+        clean_dataset = torchvision.datasets.CIFAR10(root=dataset_root, train=train, download=download)
 
     if dataset_name == "badnets0":
         target_class = 0
         poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label)
-    if dataset_name == "badnets1":
+    elif dataset_name == "badnets1":
         target_class = 1
         poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label)
     elif dataset_name == "badnets2":
@@ -340,10 +343,19 @@ def prepare_poison_dataset(
     elif dataset_name == "sig2":
         target_class = 2
         poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=2, transform=transform, return_original_label=return_original_label)
+    elif dataset_name == "clean":
+        target_class = None
+        transform_clean = transforms.Compose([transforms.ToTensor(), transform])
+        poison_dataset = torchvision.datasets.CIFAR10(root=dataset_root, train=train, download=download, transform=transform_clean)
     else:
+        #
         raise Exception("Invalid dataset")
 
-    poison_indices = np.array([poison_dataset.is_poison(i) for i in range(len(poison_dataset))])
+    if dataset_name == "clean":
+        poison_indices = np.zeros(len(poison_dataset))
+    else:
+        poison_indices = np.array([poison_dataset.is_poison(i) for i in range(len(poison_dataset))])
+    
 
     return poison_dataset, poison_indices, target_class, clean_dataset
 
