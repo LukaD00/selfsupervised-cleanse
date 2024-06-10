@@ -316,31 +316,40 @@ def prepare_poison_dataset(
     if clean_dataset is None:
         clean_dataset = torchvision.datasets.CIFAR10(root=dataset_root, train=train, download=download)
 
-    if dataset_name == "badnets0":
+    if dataset_name == "badnets1-0":
+        target_class = 0
+        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=0.01)
+    elif dataset_name == "badnets1-1":
+        target_class = 1
+        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=0.01)
+    elif dataset_name == "badnets1-2":
+        target_class = 2
+        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=0.01)
+    elif dataset_name == "badnets10-0":
         target_class = 0
         poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label)
-    elif dataset_name == "badnets1":
+    elif dataset_name == "badnets10-1":
         target_class = 1
         poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label)
-    elif dataset_name == "badnets2":
+    elif dataset_name == "badnets10-2":
         target_class = 2
         poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label)
-    elif dataset_name == "wanet0":
+    elif dataset_name == "wanet-0":
         target_class = 0
         poison_dataset = WaNetDataset(clean_dataset, target_class, seed=1, transform=transform, return_original_label=return_original_label)
-    elif dataset_name == "wanet1":
+    elif dataset_name == "wanet-1":
         target_class = 1
         poison_dataset = WaNetDataset(clean_dataset, target_class, seed=1, transform=transform, return_original_label=return_original_label)
-    elif dataset_name == "wanet2":
+    elif dataset_name == "wanet-2":
         target_class = 2
         poison_dataset = WaNetDataset(clean_dataset, target_class, seed=1, transform=transform, return_original_label=return_original_label)
-    elif dataset_name == "sig0":
+    elif dataset_name == "sig-0":
         target_class = 0
         poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=1, transform=transform, return_original_label=return_original_label)
-    elif dataset_name == "sig1":
+    elif dataset_name == "sig-1":
         target_class = 1
         poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=1, transform=transform, return_original_label=return_original_label)
-    elif dataset_name == "sig2":
+    elif dataset_name == "sig-2":
         target_class = 2
         poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=2, transform=transform, return_original_label=return_original_label)
     elif dataset_name == "clean":

@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 from torchvision import models
 
-
 class Identity(nn.Module):
     def __init__(self):
         super(Identity, self).__init__()
@@ -66,7 +65,8 @@ class SimClrBackbone(nn.Module):
         super().__init__()
         
         #PRETRAINED MODEL
-        self.pretrained = models.resnet18(pretrained=True)
+        #self.pretrained = models.resnet18(pretrained=True)
+        self.pretrained = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
         self.pretrained.conv1 = nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), bias=False)
         self.pretrained.maxpool = Identity()
         self.pretrained.fc = Identity()
