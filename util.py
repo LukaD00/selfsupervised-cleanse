@@ -190,11 +190,11 @@ def gauss_cleanse(features: np.array, discard_percentage: float, poison_indices:
     return predicted_poison_indices
 
 
-def kmeans_cleanse(features: np.array, means: int = 50, mode: str = "both") -> np.array:
+def kmeans_cleanse(features: np.array, means: int = 11, mode: str = "both") -> np.array:
 
 	assert mode in ["distance", "size", "both"]
 
-	kmeans = KMeans(n_clusters=means, init="k-means++")
+	kmeans = KMeans(n_clusters=means, init="k-means++", n_init=1)
 	kmeans.fit(features)
 	
 	if mode == "distance":
