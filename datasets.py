@@ -192,7 +192,7 @@ class WaNetDataset(VisionDataset):
         self.poi_indices = random.sample(indices, k=number_poisoned)
 
         clean_indices = [i for i in range(len(original_dataset.targets)) if i not in self.poi_indices]
-        self.noise_indices = random.sample(clean_indices, k=int(len(original_dataset.targets) * noise_rate))
+        self.noise_indices = random.sample(clean_indices, k=min(int(len(original_dataset.targets) * noise_rate),len(clean_indices)))
 
         # Prepare attack grid
         ins = torch.rand(1, 2, k, k) * 2 - 1
@@ -311,47 +311,64 @@ def prepare_poison_dataset(
         download: bool = False,
         transform: torch.nn.Module = None,
         return_original_label: bool = True,
-        clean_dataset: VisionDataset = None) -> Tuple[VisionDataset, np.array, int, VisionDataset]:
+        clean_dataset: VisionDataset = None,
+        full_poison: bool = False) -> Tuple[VisionDataset, np.array, int, VisionDataset]:
     
+
     if clean_dataset is None:
         clean_dataset = torchvision.datasets.CIFAR10(root=dataset_root, train=train, download=download)
 
     if dataset_name == "badnets1-0":
         target_class = 0
-        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=0.01)
+        pr = 1.0 if full_poison else 0.01
+        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=pr)
     elif dataset_name == "badnets1-1":
         target_class = 1
-        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=0.01)
+        pr = 1.0 if full_poison else 0.01
+        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=pr)
     elif dataset_name == "badnets1-2":
         target_class = 2
-        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=0.01)
+        pr = 1.0 if full_poison else 0.01
+        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=pr)
     elif dataset_name == "badnets10-0":
         target_class = 0
-        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label)
+        pr = 1.0 if full_poison else 0.1
+        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=pr)
     elif dataset_name == "badnets10-1":
         target_class = 1
-        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label)
+        pr = 1.0 if full_poison else 0.1
+        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=pr)
     elif dataset_name == "badnets10-2":
         target_class = 2
-        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label)
+        pr = 1.0 if full_poison else 0.1
+        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=pr)
     elif dataset_name == "wanet-0":
         target_class = 0
-        poison_dataset = WaNetDataset(clean_dataset, target_class, seed=1, transform=transform, return_original_label=return_original_label)
+        pr = 1.0 if full_poison else 0.1
+        poison_dataset = WaNetDataset(clean_dataset, target_class, seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=pr)
     elif dataset_name == "wanet-1":
         target_class = 1
-        poison_dataset = WaNetDataset(clean_dataset, target_class, seed=1, transform=transform, return_original_label=return_original_label)
+        pr = 1.0 if full_poison else 0.1
+        poison_dataset = WaNetDataset(clean_dataset, target_class, seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=pr)
     elif dataset_name == "wanet-2":
         target_class = 2
-        poison_dataset = WaNetDataset(clean_dataset, target_class, seed=1, transform=transform, return_original_label=return_original_label)
+        pr = 1.0 if full_poison else 0.1
+        poison_dataset = WaNetDataset(clean_dataset, target_class, seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=pr)
     elif dataset_name == "sig-0":
         target_class = 0
-        poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=1, transform=transform, return_original_label=return_original_label)
+        pr = 1.0 if full_poison else 0.1
+        attack_test = True if full_poison else False
+        poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=pr, attack_test=attack_test)
     elif dataset_name == "sig-1":
         target_class = 1
-        poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=1, transform=transform, return_original_label=return_original_label)
+        pr = 1.0 if full_poison else 0.1
+        attack_test = True if full_poison else False
+        poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=pr, attack_test=attack_test)
     elif dataset_name == "sig-2":
         target_class = 2
-        poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=2, transform=transform, return_original_label=return_original_label)
+        pr = 1.0 if full_poison else 0.1
+        attack_test = True if full_poison else False
+        poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=2, transform=transform, return_original_label=return_original_label, poisoning_rate=pr, attack_test=attack_test)
     elif dataset_name == "clean":
         target_class = None
         transform_clean = transforms.Compose([transforms.ToTensor(), transform])
