@@ -21,21 +21,21 @@ from datasets import prepare_poison_dataset
 device = "cuda"
 batch_size = 128
 
-DATASET = "sig-0"  
-
 
 LOAD_CHECKPOINT = False
 CHECKPOINT = ""
 
 TRAIN = True
-CLEANSE = False
-CLEANSED_LABELS_NAME = f"" 
+CLEANSE = True
 
-for DATASET in ["sig-1", "sig-2", 
+for DATASET in ["sig-0", "sig-1", "sig-2", 
                 "badnets1-0", "badnets1-1", "badnets1-2",
-                "badnets10-0", "badnets10-1", "badnets10-2"]:
-    save_name = f"{DATASET}-NEW.pt"
+                "badnets10-0", "badnets10-1", "badnets10-2",
+                "wanet-0", "wanet-1", "wanet-2"]:
+    
+    CLEANSED_LABELS_NAME = f"{DATASET}" 
 
+    save_name = f"{DATASET}-cleansed-NEW.pt"
     print()
     print()
     print(f"Traning {DATASET}")
@@ -248,7 +248,6 @@ for DATASET in ["sig-1", "sig-2",
         print(f"{start_epoch = }")
 
     best_acc = 0
-    save_name = f"{DATASET}-NEW.pt"
 
     # Training
     def train(epoch, model, dataloader, criterion):
@@ -341,7 +340,7 @@ for DATASET in ["sig-1", "sig-2",
 
     test_dataset = torchvision.datasets.CIFAR10(root='C:/Datasets', train=False, download=False)
     test_dataset = SkipLabelDataset(test_dataset, target_class)
-    full_poisoned_test_dataset, _, _, _ = prepare_poison_dataset(DATASET, train=False, transform=transform_poison, return_original_label=False, clean_dataset=test_dataset)
+    full_poisoned_test_dataset, _, _, _ = prepare_poison_dataset(DATASET, train=False, transform=transform_poison, return_original_label=False, clean_dataset=test_dataset, full_poison=True)
 
     testloader_full_poison = DataLoader(full_poisoned_test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
     _, asr = test(0, model, testloader_full_poison, criterion, optimizer, save=False)
