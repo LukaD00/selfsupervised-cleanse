@@ -371,14 +371,15 @@ def prepare_poison_dataset(
         poison_dataset = SIGDataset(clean_dataset, target_class, 20, 6, seed=2, transform=transform, return_original_label=return_original_label, poisoning_rate=pr, attack_test=attack_test)
     elif dataset_name == "clean":
         target_class = None
-        transform_clean = transforms.Compose([transforms.ToTensor(), transform])
-        poison_dataset = torchvision.datasets.CIFAR10(root=dataset_root, train=train, download=download, transform=transform_clean)
+        #transform_clean = transforms.Compose([transforms.ToTensor(), transform]) if transform else transforms.ToTensor()
+        #poison_dataset = torchvision.datasets.CIFAR10(root=dataset_root, train=train, download=download, transform=transform_clean)
+        poison_dataset = BadNetsDataset(clean_dataset, target_class, "triggers/trigger_10.png", seed=1, transform=transform, return_original_label=return_original_label, poisoning_rate=0)
     else:
         #
         raise Exception("Invalid dataset")
 
     if dataset_name == "clean":
-        poison_indices = np.zeros(len(poison_dataset))
+        poison_indices = np.zeros(len(poison_dataset), dtype=bool)
     else:
         poison_indices = np.array([poison_dataset.is_poison(i) for i in range(len(poison_dataset))])
     

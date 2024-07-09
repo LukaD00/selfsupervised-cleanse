@@ -23,8 +23,8 @@ batch_size = 256
 
 
 
-DATASET = "badnets1-2"
-LOAD_CHECKPOINT = False
+DATASET = "clean"
+LOAD_CHECKPOINT = True
 CHECKPOINT_NAME = f"{DATASET}-SimCLR-NEW.pt"
 
 
